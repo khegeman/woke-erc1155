@@ -4,7 +4,6 @@ pragma solidity 0.8.15;
 import {DSTestPlus} from "solmate/test/utils/DSTestPlus.sol";
 import {DSInvariantTest} from "solmate/test/utils/DSInvariantTest.sol";
 
-import "../src/ERC1155Inline.sol";
 import "../src/IERC1155.sol";
 import "../src/ERC1155Impl.sol";
 import "./lib/YulDeployer.sol";
@@ -144,9 +143,8 @@ contract ERC1155Test is DSTestPlus, ERC1155TokenReceiver {
     mapping(address => mapping(uint256 => uint256)) public userTransferOrBurnAmounts;
 
     function setUp() public {
-        // token = VERC1155(address(new ERC1155Inline()));
-        token = VERC1155(yulDeployer.deployContract("ERC1155Yul"));
-        //token = VERC1155(address(new ERC1155Impl()));
+        //token = VERC1155(yulDeployer.deployContract("ERC1155Yul"));
+        token = VERC1155(address(new ERC1155Impl()));
     }
 
     function testMintToEOA() public {
