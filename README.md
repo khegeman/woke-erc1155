@@ -4,7 +4,7 @@
 
 ```
 woke init pytypes
-woke test test/test_erc1155.py
+woke test tests/test_erc1155.py
 ```
 
 A pure yul erc1155 implementation that shares the same ABI as the solidity implementation can be tested by removing the comment from the following line in the woke test files and pointing to a yul file . 
