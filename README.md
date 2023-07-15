@@ -13,6 +13,12 @@ A pure yul erc1155 implementation that shares the same ABI as the solidity imple
 # replace_bytecode(ERC1155Impl, "yul/ERC1155Yul.yul")
 ```
 
+# Stateful fuzz testing 
+
+For stateful fuzz testing, I created a python class that mirrors the ERC1155 solidity class.  Each flow calls the same method in both the solidity and python implementations.  
+
+There are 2 invariants that are run after each flow that verify the state matches between python and solidity, one for approvals and one for balances.  
+
 
 # ERC1155 Tests
 
