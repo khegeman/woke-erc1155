@@ -2,12 +2,12 @@ pragma solidity ^0.8.15;
 
 import "./IERC1155.sol";
 //import "openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol";
-contract ERC1155Impl is IERC1155Errors  {
+
+contract ERC1155Impl is IERC1155Errors {
     mapping(address => mapping(uint256 => uint256)) balanceMap;
     mapping(address => mapping(address => bool)) approveMap;
     string internal defaultURI;
     mapping(uint256 => string) customUri;
-
 
     event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
 
@@ -78,10 +78,10 @@ contract ERC1155Impl is IERC1155Errors  {
      * - `operator` cannot be the caller.
      */
     function setApprovalForAll(address operator, bool approved) external {
-       // require(msg.sender != operator);
-        if (msg.sender == operator || operator==address(0)) {
+        // require(msg.sender != operator);
+        if (msg.sender == operator || operator == address(0)) {
             revert ERC1155InvalidOperator(operator);
-        }        
+        }
         approveMap[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
@@ -110,13 +110,14 @@ contract ERC1155Impl is IERC1155Errors  {
      */
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) public {
         _safeTransferFrom(from, to, id, amount, data);
-        
-        if (to.code.length > 0) {            
-                if (ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data)
-                    != ERC1155TokenReceiver.onERC1155Received.selector) 
-                    {
-                        revert ERC1155InvalidReceiver(to);
-                    }                
+
+        if (to.code.length > 0) {
+            if (
+                ERC1155TokenReceiver(to).onERC1155Received(msg.sender, from, id, amount, data)
+                    != ERC1155TokenReceiver.onERC1155Received.selector
+            ) {
+                revert ERC1155InvalidReceiver(to);
+            }
         }
         emit TransferSingle(msg.sender, from, to, id, amount);
     }
@@ -127,19 +128,19 @@ contract ERC1155Impl is IERC1155Errors  {
         }
         if (from == address(0)) {
             revert ERC1155InvalidSender(from);
-        }        
+        }
         bool approved = msg.sender == from;
         if (approved == false) {
             approved = approveMap[from][msg.sender];
         }
-        if (approved==false) {
-            revert ERC1155InsufficientApprovalForAll(msg.sender,from);
+        if (approved == false) {
+            revert ERC1155InsufficientApprovalForAll(msg.sender, from);
         }
 
         uint256 balance = balanceMap[from][id];
-        
+
         if (amount > balance) {
-            revert ERC1155InsufficientBalance(from,balance, amount,id );
+            revert ERC1155InsufficientBalance(from, balance, amount, id);
         }
         balanceMap[from][id] -= amount;
         balanceMap[to][id] += amount;
@@ -172,34 +173,37 @@ contract ERC1155Impl is IERC1155Errors  {
         for (uint256 i = 0; i < ids.length; ++i) {
             _safeTransferFrom(from, to, ids[i], amounts[i], data);
         }
-        if (to.code.length > 0) {            
-            if (ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data)
-                    != ERC1155TokenReceiver.onERC1155BatchReceived.selector)
-            {
+        if (to.code.length > 0) {
+            if (
+                ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, from, ids, amounts, data)
+                    != ERC1155TokenReceiver.onERC1155BatchReceived.selector
+            ) {
                 revert ERC1155InvalidReceiver(to);
-            }    
+            }
         }
         emit TransferBatch(msg.sender, from, to, ids, amounts);
     }
 
     //ERC 165 support 0x0e89341c
     function supportsInterface(bytes4 signature) external pure returns (bool) {
-        return (signature==bytes4(0x01ffc9a7)) || (signature==bytes4(0xd9b67a26)) || (signature==0x0e89341c);
+        return (signature == bytes4(0x01ffc9a7)) || (signature == bytes4(0xd9b67a26)) || (signature == 0x0e89341c);
     }
 
     function _mint(address to, uint256 id, uint256 amount, bytes calldata data) internal {
-        balanceMap[to][id] += amount;        
+        balanceMap[to][id] += amount;
     }
 
     function mint(address to, uint256 id, uint256 amount, bytes calldata data) public {
         if (to == address(0)) {
             revert ERC1155InvalidReceiver(to);
         }
-        _mint(to,id,amount,data);
+        _mint(to, id, amount, data);
         if (to.code.length > 0) {
-            try ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) returns (bytes4 result) {
+            try ERC1155TokenReceiver(to).onERC1155Received(msg.sender, address(0), id, amount, data) returns (
+                bytes4 result
+            ) {
                 if (result != ERC1155TokenReceiver.onERC1155Received.selector) {
-                    revert ERC1155InvalidReceiver(to);                    
+                    revert ERC1155InvalidReceiver(to);
                 }
             } catch {
                 //Exception happens in the event that onERC1155Received isn't implemented on the contract
@@ -221,14 +225,16 @@ contract ERC1155Impl is IERC1155Errors  {
             _mint(to, ids[i], amounts[i], data);
         }
         if (to.code.length > 0) {
-            try ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, address(0), ids, amounts, data) returns (bytes4 result) {
-                if (result != ERC1155TokenReceiver.onERC1155Received.selector) {
-                    revert ERC1155InvalidReceiver(to);                    
+            try ERC1155TokenReceiver(to).onERC1155BatchReceived(msg.sender, address(0), ids, amounts, data) returns (
+                bytes4 result
+            ) {
+                if (result != ERC1155TokenReceiver.onERC1155BatchReceived.selector) {
+                    revert ERC1155InvalidReceiver(to);
                 }
-            } catch {                
+            } catch {
                 //Exception happens in the event that onERC1155BatchReceived isn't implemented on the contract
                 revert ERC1155InvalidReceiver(to);
-            }                    
+            }
         }
         emit TransferBatch(msg.sender, address(0), to, ids, amounts);
     }

@@ -226,7 +226,7 @@ abstract contract ERC1155TokenReceiver {
  * Interface of the ERC6093 custom errors for ERC1155 tokens
  * as defined in https://eips.ethereum.org/EIPS/eip-6093
  */
- interface IERC1155Errors {
+interface IERC1155Errors {
     /**
      * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
      * @param sender Address whose tokens are being transferred.

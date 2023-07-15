@@ -143,8 +143,8 @@ contract ERC1155Test is DSTestPlus, ERC1155TokenReceiver {
     mapping(address => mapping(uint256 => uint256)) public userTransferOrBurnAmounts;
 
     function setUp() public {
-        //token = VERC1155(yulDeployer.deployContract("ERC1155Yul"));
-        token = VERC1155(address(new ERC1155Impl()));
+        token = VERC1155(yulDeployer.deployContract("ERC1155Yul"));
+        //token = VERC1155(address(new ERC1155Impl()));
     }
 
     function testMintToEOA() public {

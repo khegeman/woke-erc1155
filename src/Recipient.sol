@@ -20,7 +20,6 @@ contract ERC1155Recipient is ERC1155TokenReceiver {
         amount = _amount;
         mintData = _data;
 
-        
         return ERC1155TokenReceiver.onERC1155Received.selector;
     }
 
